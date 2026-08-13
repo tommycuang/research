@@ -1,25 +1,24 @@
-# Database Transaction Research
+# Research Workspace
 
-Small Go and PostgreSQL project for comparing normal, pessimistic-lock, and optimistic-lock balance updates under concurrent requests.
+Collection of small, independent code experiments. Each topic lives in its own folder and includes a local README with its purpose, startup instructions, and verification steps.
 
 ## Requirements
+
+Requirements vary by topic. Current experiments use:
 
 - Docker with Docker Compose
 - Go 1.26 or newer
 - `curl`
 
-## Project Map
+## Research Topics
 
-| Path | Purpose | Documentation |
+| Topic | Description | Documentation |
 | --- | --- | --- |
-| `compose.yaml` | PostgreSQL and SQLPad services | This file |
-| `migrations/` | Database schema migrations | This file |
-| `seeds/` | Sample wallet data | This file |
-| `db-transactions/` | Gin API and concurrency verification | [`db-transactions/README.md`](db-transactions/README.md) |
+| `db-transactions/` | Compare normal, pessimistic-lock, and optimistic-lock database updates under concurrency | [`db-transactions/README.md`](db-transactions/README.md) |
 
-## Infrastructure
+## Shared Infrastructure
 
-Start PostgreSQL and SQLPad:
+Root `compose.yaml` currently provides PostgreSQL and SQLPad for database-oriented experiments.
 
 ```bash
 docker compose up -d
@@ -30,18 +29,11 @@ docker compose up -d
 | PostgreSQL | `localhost:5432` | `postgres` / `postgres` |
 | SQLPad | <http://localhost:3001> | `admin` / `admin` |
 
-PostgreSQL data persists in `postgres_data`; SQLPad state persists in `sqlpad_data`.
+Data persists in Docker named volumes across restarts.
 
-## First Run
+## Database Setup
 
-1. Start services with `docker compose up -d`.
-2. Apply migrations in order.
-3. Seed sample wallets.
-4. Start API using [`db-transactions/README.md`](db-transactions/README.md).
-
-## Apply Migrations
-
-Run from project root after starting Docker services:
+Apply current database migrations from workspace root:
 
 ```bash
 docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U postgres \
@@ -54,18 +46,16 @@ docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U postgres -d researchs
   < migrations/003_add_wallet_version.sql
 ```
 
-## Seed Wallets
-
-Run after applying all migrations:
+Seed sample data:
 
 ```bash
 docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U postgres -d researchs \
   < seeds/001_seed_wallets.sql
 ```
 
-## Stop Services
+## Stop Infrastructure
 
-Retain data:
+Retain persisted data:
 
 ```bash
 docker compose down
