@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  sqlpad:
+    image: sqlpad/sqlpad:latest
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SQLPAD_ADMIN: ${SQLPAD_ADMIN:-admin}
+      SQLPAD_ADMIN_PASSWORD: ${SQLPAD_ADMIN_PASSWORD:-admin}
+      SQLPAD_CONNECTIONS__postgres__name: PostgreSQL
+      SQLPAD_CONNECTIONS__postgres__driver: postgres
+      SQLPAD_CONNECTIONS__postgres__host: postgres
+      SQLPAD_CONNECTIONS__postgres__port: 5432
+      SQLPAD_CONNECTIONS__postgres__database: ${SQLPAD_DATABASE:-researchs}
+      SQLPAD_CONNECTIONS__postgres__username: ${POSTGRES_USER:-postgres}
+      SQLPAD_CONNECTIONS__postgres__password: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "${SQLPAD_PORT:-3001}:3000"
+    volumes:
+      - sqlpad_data:/var/lib/sqlpad
+
+volumes:
+  postgres_data:
+  sqlpad_data:
