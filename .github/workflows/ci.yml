@@ -19,7 +19,7 @@ jobs:
         module:
           - db-transactions
           - idempotency
-          # - outbox-pattern
+          - outbox-pattern
 
     defaults:
       run:
