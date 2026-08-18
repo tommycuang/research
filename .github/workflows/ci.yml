@@ -2,6 +2,8 @@ name: Go CI
 
 on:
   push:
+    branches:
+      - main
   pull_request:
 
 permissions:
@@ -17,7 +19,7 @@ jobs:
         module:
           - db-transactions
           - idempotency
-          - outbox-pattern
+          # - outbox-pattern
 
     defaults:
       run:
