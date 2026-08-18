@@ -10,11 +10,39 @@ Requirements vary by topic. Current experiments use:
 - Go 1.26 or newer
 - `curl`
 
+## Continuous Integration
+
+GitHub Actions runs the Go CI workflow for every pull request and for pushes
+to `main`. The workflow currently checks `db-transactions/` and
+`idempotency/` with:
+
+- `gofmt` formatting validation
+- `go vet ./...`
+- `go test ./...`
+- `go build ./...`
+
+The `outbox-pattern/` scaffold is currently excluded from the CI matrix.
+
+Run the same checks locally from the workspace root:
+
+```bash
+for module in db-transactions idempotency; do
+  (
+    cd "$module" &&
+    test -z "$(gofmt -l .)" &&
+    go vet ./... &&
+    go test ./... &&
+    go build ./...
+  )
+done
+```
+
 ## Research Topics
 
 | Topic | Description | Documentation |
 | --- | --- | --- |
 | `db-transactions/` | Compare normal, pessimistic-lock, and optimistic-lock database updates under concurrency | [`db-transactions/README.md`](db-transactions/README.md) |
+| `outbox-pattern/` | Runnable baseline for a future transactional outbox experiment | [`outbox-pattern/README.md`](outbox-pattern/README.md) |
 | `idempotency/` | Demonstrate transactional, idempotent wallet transfers under concurrency | [`idempotency/README.md`](idempotency/README.md) |
 
 ## Shared Infrastructure
