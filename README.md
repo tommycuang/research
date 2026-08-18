@@ -15,6 +15,7 @@ Requirements vary by topic. Current experiments use:
 | Topic | Description | Documentation |
 | --- | --- | --- |
 | `db-transactions/` | Compare normal, pessimistic-lock, and optimistic-lock database updates under concurrency | [`db-transactions/README.md`](db-transactions/README.md) |
+| `idempotency/` | Demonstrate transactional, idempotent wallet transfers under concurrency | [`idempotency/README.md`](idempotency/README.md) |
 
 ## Shared Infrastructure
 
@@ -44,6 +45,9 @@ docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U postgres -d researchs
 
 docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U postgres -d researchs \
   < migrations/003_add_wallet_version.sql
+
+docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U postgres -d researchs \
+  < migrations/004_create_idempotency_records.sql
 ```
 
 Seed sample data:
