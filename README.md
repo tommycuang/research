@@ -9,24 +9,24 @@ Requirements vary by topic. Current experiments use:
 - Docker with Docker Compose
 - Go 1.26 or newer
 - `curl`
+- `lsof` for automatic verifier port selection
 
 ## Continuous Integration
 
 GitHub Actions runs the Go CI workflow for every pull request and for pushes
-to `main`. The workflow currently checks `db-transactions/` and
-`idempotency/` with:
+to `main`. The workflow checks `db-transactions/`, `idempotency/`, and
+`outbox-pattern/` with:
 
 - `gofmt` formatting validation
 - `go vet ./...`
 - `go test ./...`
 - `go build ./...`
 
-The `outbox-pattern/` scaffold is currently excluded from the CI matrix.
-
 Run the same checks locally from the workspace root:
 
 ```bash
-for module in db-transactions idempotency; do
+set -e
+for module in db-transactions idempotency outbox-pattern; do
   (
     cd "$module" &&
     test -z "$(gofmt -l .)" &&
@@ -42,7 +42,7 @@ done
 | Topic | Description | Documentation |
 | --- | --- | --- |
 | `db-transactions/` | Compare normal, pessimistic-lock, and optimistic-lock database updates under concurrency | [`db-transactions/README.md`](db-transactions/README.md) |
-| `outbox-pattern/` | Runnable baseline for a future transactional outbox experiment | [`outbox-pattern/README.md`](outbox-pattern/README.md) |
+| `outbox-pattern/` | Demonstrate transactional outbox production, polling, retries, and delivery guarantees | [`outbox-pattern/README.md`](outbox-pattern/README.md) |
 | `idempotency/` | Demonstrate transactional, idempotent wallet transfers under concurrency | [`idempotency/README.md`](idempotency/README.md) |
 
 ## Shared Infrastructure
@@ -76,6 +76,9 @@ docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U postgres -d researchs
 
 docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U postgres -d researchs \
   < migrations/004_create_idempotency_records.sql
+
+docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U postgres -d researchs \
+  < migrations/005_create_outbox_events.sql
 ```
 
 Seed sample data:
