@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ORDER BY and LIMIT</title>
+<style>body{margin:0;background:#edf2f4;color:#12212f;font:16px/1.65 ui-sans-serif,system-ui,sans-serif}main{width:min(780px,calc(100% - 32px));margin:32px auto;padding:32px 40px 56px;border-left:7px solid #2f6792;background:#f8fafb}h1,h2{font-family:"Arial Narrow",Impact,ui-sans-serif,sans-serif;line-height:1.05}h1{font-size:clamp(2.4rem,8vw,5rem);letter-spacing:.01em;text-transform:uppercase}h2{font:700 1rem/1.3 ui-monospace,monospace;text-transform:uppercase}h2:before{content:"-> ";color:#ef9f32}a{color:#205f8d;text-decoration-thickness:2px}a:focus-visible{outline:3px solid #ef9f32;outline-offset:3px}pre{overflow:auto;background:#12212f;color:#b8e3e8;padding:18px;border-left:5px solid #ef9f32;font:14px/1.55 ui-monospace,monospace}.mission{color:#36566e;font:700 .78rem/1.4 ui-monospace,monospace;text-transform:uppercase;letter-spacing:.08em}.task{background:#fff;border:1px solid #b8c7cf;border-left:5px solid #ef9f32;padding:20px}@media(max-width:600px){main{margin:0 auto;padding:28px 22px;border-left-width:5px}}@media print{body{background:white;font-size:11pt}main{width:100%;margin:0;padding:0 0 0 16px}}</style>
+</head>
+<body>
+<main>
+<p class="mission">Mission: diagnose PostgreSQL performance from evidence, then defend the decision in an interview.</p>
+<h1>LIMIT is cheap only when work can stop.</h1>
+<p>
+<strong>Objective:</strong> identify scanning and sorting performed before PostgreSQL returns a small ordered result.</p>
+<h2>Exercise</h2>
+<p>Run <a href="../exercises.sql">Exercise 5</a>. Find the sort method and number of child rows. Explain whether the limit avoids scanning, sorting, both, or neither.</p>
+<div class="task">
+<strong>Answer gate:</strong> reason about filtering and ordering together, then propose exact SQL or no-index reasoning before requesting feedback.</div>
+<h2>Submit</h2>
+<pre>Exercise:
+Plan node(s):
+Estimated vs actual rows:
+Rows removed / loops:
+Buffers and sort details:
+Planning / execution time:
+Work completed before LIMIT:
+My proposed CREATE INDEX, or why no index should exist:</pre>
+<p>Reference: <a href="../reference/explain-plan.html">execution-plan field guide</a>. Primary source: <a href="https://www.postgresql.org/docs/16/indexes-ordering.html">PostgreSQL: Indexes and ORDER BY</a>.</p>
+<p>Ask your agent about anything unclear.</p>
+</main>
+</body>
+</html>

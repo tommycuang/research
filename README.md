@@ -14,8 +14,8 @@ Requirements vary by topic. Current experiments use:
 ## Continuous Integration
 
 GitHub Actions runs the Go CI workflow for every pull request and for pushes
-to `main`. The workflow checks `db-transactions/`, `idempotency/`, and
-`outbox-pattern/` with:
+to `main`. The workflow checks `db-transactions/`, `db-indexes/`,
+`idempotency/`, and `outbox-pattern/` with:
 
 - `gofmt` formatting validation
 - `go vet ./...`
@@ -26,7 +26,7 @@ Run the same checks locally from the workspace root:
 
 ```bash
 set -e
-for module in db-transactions idempotency outbox-pattern; do
+for module in db-transactions db-indexes idempotency outbox-pattern; do
   (
     cd "$module" &&
     test -z "$(gofmt -l .)" &&
@@ -42,12 +42,15 @@ done
 | Topic | Description | Documentation |
 | --- | --- | --- |
 | `db-transactions/` | Compare normal, pessimistic-lock, and optimistic-lock database updates under concurrency | [`db-transactions/README.md`](db-transactions/README.md) |
+| `db-indexes/` | Practice PostgreSQL execution plans, indexing, pagination, and read/write tradeoffs | [`db-indexes/README.md`](db-indexes/README.md) |
 | `outbox-pattern/` | Demonstrate transactional outbox production, polling, retries, and delivery guarantees | [`outbox-pattern/README.md`](outbox-pattern/README.md) |
 | `idempotency/` | Demonstrate transactional, idempotent wallet transfers under concurrency | [`idempotency/README.md`](idempotency/README.md) |
 
 ## Shared Infrastructure
 
-Root `compose.yaml` currently provides PostgreSQL and SQLPad for database-oriented experiments.
+Root `compose.yaml` provides PostgreSQL and SQLPad for database-oriented
+experiments, including the isolated `db_indexes` schema used by the indexing
+lab.
 
 ```bash
 docker compose up -d
