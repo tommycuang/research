@@ -18,6 +18,7 @@ jobs:
       matrix:
         module:
           - db-transactions
+          - db-indexes
           - idempotency
           - outbox-pattern
 

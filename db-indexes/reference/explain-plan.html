@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PostgreSQL Execution Plan Field Guide</title>
+  <style>
+    :root { color-scheme: light; --ink:#12212f; --muted:#36566e; --line:#b8c7cf; --paper:#edf2f4; --accent:#2f6792; --signal:#ef9f32; --buffer:#b8e3e8; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.65 ui-sans-serif,system-ui,sans-serif; }
+    main { width:min(920px,calc(100% - 32px)); margin:32px auto; padding:44px 48px 72px; background:#f8fafb; border-left:8px solid var(--accent); }
+    h1,h2 { font-family:"Arial Narrow",Impact,ui-sans-serif,sans-serif; line-height:1.05; text-transform:uppercase; }
+    h1 { max-width:760px; font-size:clamp(2.5rem,7vw,5.4rem); letter-spacing:.01em; margin:0 0 14px; }
+    h2 { margin:42px 0 10px; border-top:1px solid var(--line); padding-top:20px; }
+    h2::before { content:"-> "; color:var(--signal); }
+    .lede { max-width:720px; color:var(--muted); font-size:1.18rem; }
+    code,pre { font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    code { color:#205f8d; }
+    pre { overflow:auto; padding:18px; color:var(--buffer); background:var(--ink); border-left:5px solid var(--signal); }
+    table { width:100%; border-collapse:collapse; font-size:.95rem; }
+    th,td { text-align:left; vertical-align:top; padding:10px; border-bottom:1px solid var(--line); }
+    th { font-family:ui-monospace,monospace; text-transform:uppercase; }
+    .callout { margin:24px 0; padding:18px 20px; border:1px solid var(--line); border-left:5px solid var(--signal); background:#fff; }
+    a { color:var(--accent); }
+    @media (max-width:620px) { main{margin:0 auto;padding:30px 22px;border-left-width:5px} table{display:block;overflow-x:auto} }
+    @media print { body{background:#fff;font-size:11pt} main{width:100%;margin:0;padding:0 0 0 16px} a{color:#000} h2{break-after:avoid} pre,.callout{break-inside:avoid} }
+  </style>
+</head>
+<body><main>
+  <p>POSTGRESQL 16 · QUICK REFERENCE</p>
+  <h1>Read the work, not just the clock.</h1>
+  <p class="lede">An execution plan is a tree of operations. Read its deepest indented children first, then move upward to see how each parent consumes their rows.</p>
+
+  <h2>One node, four questions</h2>
+  <pre><code>Index Scan ... (cost=0.29..8.31 rows=1 width=40)
+  (actual time=0.03..0.04 rows=1 loops=5)</code></pre>
+  <table><tr><th>Field</th><th>Question</th></tr>
+    <tr><td><code>cost</code></td><td>What arbitrary planner cost did PostgreSQL estimate? It is not milliseconds.</td></tr>
+    <tr><td>estimated <code>rows</code></td><td>How many rows did the planner expect this node to emit?</td></tr>
+    <tr><td>actual <code>rows</code></td><td>How many rows did one average execution emit?</td></tr>
+    <tr><td><code>loops</code></td><td>How often did it execute? Multiply average actual rows and time by loops for totals.</td></tr>
+  </table>
+
+  <h2>Common scans</h2>
+  <table><tr><th>Node</th><th>Meaning</th></tr>
+    <tr><td><code>Seq Scan</code></td><td>Read table pages sequentially. Often right for broad results or small tables.</td></tr>
+    <tr><td><code>Index Scan</code></td><td>Walk an index and fetch matching heap rows, possibly already ordered.</td></tr>
+    <tr><td><code>Bitmap Index Scan</code></td><td>Build matching row locations from one or more indexes.</td></tr>
+    <tr><td><code>Bitmap Heap Scan</code></td><td>Fetch heap pages in physical order from that bitmap.</td></tr>
+  </table>
+
+  <h2>Condition or cleanup?</h2>
+  <p><code>Index Cond</code> limits entries reached through an index. <code>Filter</code> checks rows after the access step. <code>Rows Removed by Filter</code> reveals discarded work; multiply by loops when needed.</p>
+
+  <h2>Buffers</h2>
+  <p><code>shared hit</code> means a page came from PostgreSQL's buffer cache. <code>shared read</code> means PostgreSQL requested it from storage. Fewer buffers often explains a stable improvement better than one timing sample.</p>
+
+  <h2>Sorts and limits</h2>
+  <p>Inspect <code>Sort Key</code>, <code>Sort Method</code>, memory, and disk. A parent <code>LIMIT</code> can stop requesting rows early, but only after children perform required startup work. Check how many child rows were actually produced.</p>
+
+  <h2>Two clocks</h2>
+  <p><code>Planning Time</code> measures plan selection. <code>Execution Time</code> measures executor startup, work, and shutdown, excluding result transfer. <code>EXPLAIN ANALYZE</code> executes the statement and adds measurement overhead.</p>
+
+  <div class="callout"><strong>Evidence checklist:</strong> node tree; estimated versus actual rows; loops; index conditions and filters; rows removed; buffers; sort details; planning and execution time; returned fraction.</div>
+  <p>Primary source: <a href="https://www.postgresql.org/docs/16/using-explain.html">PostgreSQL 16, Using EXPLAIN</a>.</p>
+</main></body>
+</html>
